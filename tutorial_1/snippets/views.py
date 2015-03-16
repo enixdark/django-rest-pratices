@@ -8,6 +8,7 @@ from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from snippets.models import Snippet
 from snippets.serializers import SnippetSerializer
+from rest_framework import mixins,generics
 # from django.views.generic import View
 class JSONResponse(HttpResponse):
 	def __init__(self,data,**kwargs):
@@ -16,49 +17,34 @@ class JSONResponse(HttpResponse):
 		super(JSONResponse,self).__init__(content,**kwargs)
 
 
-class SnippetList(APIView):
+class SnippetList(mixins.ListModelMixin,mixins.CreateModelMixin,
+					generics.GenericAPIView):
 
-	def get(self,request,format=None):
-		snippets = Snippet.objects.all()
-		serializer = SnippetSerializer(snippets,many=True)
-		return Response(serializer.data)
+	quereset = Snippet.objects.all()
+	serializer_class = SnippetSerializer
 
-	def post(self,request,format=None):
-		data = JSONParser().parse(request)
-		serializer = SnippetSerializer(data=data)
-		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data,status=status.HTTP_201_CREATED)
-		return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+	def get(self,request,*args,**kwargs):
+
+		return self.list(request,*args,**kwargs)
+
+	def post(self,request,*args,**kwargs):
+		return self.create(request,*args,**kwargs)
+
+class SnippetDetail(mixins.RetrieveModelMixin,
+					mixins.UpdateModelMixin,
+					mixins.DestroyModelMixin,
+					generics.GenericAPIView):
+
+	queryset = Snippet.objects.all()
+	serializer_class = SnippetSerializer
 
 
-class SnippetDetail(APIView):
-	def get(self,request,pk,format=None):
-		try:
-			snippet = Snippet.objects.get(pk=pk)
-		except Snippet.DoesNotExits:
-			return Response(status=status.HTTP_404_NOT_FOUND)
-		serializer = SnippetSerializer(snippet)
-		return Response(serializer.data)
+	def get(self,request,*args,**kwargs):
+		return self.retrieve(request,*args,**kwargs)
 
 	def put(self,request,pk,format=None):
-		try:
-			snippet = Snippet.objects.get(pk=pk)
-		except Snippet.DoesNotExits:
-			return Response(status=status.HTTP_404_NOT_FOUND)
-
-		data = JSONParser().parse(request)
-		serializer.SnippetSerializer(snippet,data=data)
-		if serializer.is_valid():
-			serializer.save()
-			return Response(serializer.data)
-		return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+		return self.update(request,*args,**kwargs)
 
 	def delete(self,request,pk):
-		try:
-			snippet = Snippet.objects.get(pk=pk)
-		except Snippet.DoesNotExits:
-			return Response(status=status.HTTP_404_NOT_FOUND)
-		snippet.delete()
-		return Response(status=status.HTTP_204_NO_CONTENT)
+		return self.destroy(request,*args,**kwargs)
 
