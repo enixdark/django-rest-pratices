@@ -68,6 +68,8 @@
 		}
 	});
 
+
+
 	app.session = new Session();
 
 })(jQuery,Backbone,_,app);
