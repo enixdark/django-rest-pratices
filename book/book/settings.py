@@ -140,3 +140,13 @@ CLEAR_CACHE_ON_RESTART = True
 
 LOGIN_REDIRECT_URL = '/users/profile'
 LOGIN_URL = 'django.contrib.auth.views.login'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+SITE_HOST = '0.0.0.0:8000'
+DEFAULT_FROM_EMAIL = 'cqshinn92@gmail.com'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS   = True
+EMAIL_HOST_USER = 'cqshinn92@gmail.com'
+EMAIL_HOST_PASSWORD = ''

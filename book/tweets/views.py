@@ -8,6 +8,7 @@ from forms import (TweetForm, SearchForm)
 from django.template import (Context, RequestContext)
 import json
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.paginator import Paginator
 
 class Index(View):
 	def get(self, request):
@@ -50,6 +51,15 @@ class Profile(LoginRequiredMixin, View):
 		form = TweetForm(initial = {'country': 'Vietname'})
 		search_form = SearchForm()
 		tweets = Tweet.objects.filter(user = user).order_by('-created_date')
+		
+		paginator = Paginator(tweets, TWEET_PER_PAGE)
+		page = request.GET.get('page')
+		try:
+			tweets = paginator.page(page)
+		except PageNotAnInteger:
+			tweets = paginator.page(1)
+		except EmptyPage:
+			tweets = paginator.page(paginator.num_pages)
 		params['tweets'] = tweets
 		params['profile'] = user
 		params['search'] = search_form

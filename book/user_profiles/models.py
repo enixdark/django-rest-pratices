@@ -24,3 +24,13 @@ class UserFollowers(models.Model):
 
 	def __unicode__(self):
 		return self.user.username
+
+class Invitation(models.Model):
+	name = models.CharField(max_length = 50)
+	email = models.EmailField()
+	code = models.CharField(max_length = 20)
+	sender = models.ForeignKey(User)
+
+	def __unicode__(self):
+		return self.name
+
