@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+{% block header %}
+<p class="navbar-text navbar-left">
+	<span class="glyphicon glyphicon-user"> </span>
+	{{ profile.username }}'s Profile Page
+	{% if profile.username != user.username %}
+	<span class="btn btn-xs btn-default follow-btn" title="Click
+	to follow {{ profile.username }}" value="{{ following }}"
+	username="{{ profile.username }}">
+	<span class="glyphicon glyphicon-plus"></span><span
+	class="follow-text">
+	{{ following|yesno:"Unfollow,Follow" }}
+</span>
+</span>
+{% endif %}
+</p>
+{% endblock %}
+
+{% block content %}
+<div class="row clearfix">
+	<div class="col-md-12 column">
+		<form method="post" action="post/">
+			{% csrf_token %}
+			<div class="row">
+				<div class="col-md-8 col-md-offset-2 fieldWrapper">
+					{{ form.text.errors }}
+					{{ form.text }}
+					{{ form.country.as_hidden }}
+				</div>
+				<div class="col-md-2 fieldWrapper">
+					<button class="btn btn-success" type="submit" value="post">Click</button>
+				</div>
+			</div>
+		</form>
+	</div>
+	<h3>&nbsp;</h3>
+	<div class="col-md-12 column">
+		{% for tweet in tweets %}
+		<div class="well">
+			<span>{{ tweet.text }}</span>
+		</div>
+		{% endfor %}
+	</div>
+</div>
+{% endblock %}
+
+{% block js %}
+	<script src="{% static 'javascripts/profile.js' %}"></script>
+{% endblock %}
+
+

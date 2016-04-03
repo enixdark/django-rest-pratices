@@ -2,32 +2,70 @@ from django.shortcuts import (render, redirect)
 from django.template.loader import render_to_string
 from django.http import (HttpResponse, HttpResponseRedirect)
 from django.views.generic import View
-from user_profiles.models import User
+from user_profiles.models import (User, UserFollowers)
 from models import (Tweet, HashTag)
 from forms import (TweetForm, SearchForm)
 from django.template import (Context, RequestContext)
 import json
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 class Index(View):
 	def get(self, request):
 		params = {}
 		params['name'] = "Django"
 		return render(request, 'base.html', params)
-
 	def post(self,request):
 		return HttpResponse("I am called post")
 
-
-
-class Profile(View):
+class UserProfile(LoginRequiredMixin, View):
+	# login_url = '/login/'
+    # redirect_field_name = 'redirect_to'
 	def get(self, request, username):
 		params = dict()
 		user = User.objects.get(username = username)
-		tweets = Tweet.objects.filter(user = user)
+		form = TweetForm(initial = {'country': 'Vietname'})
+		tweets = Tweet.objects.filter(user = user).order_by('-created_date')
 		params['tweets'] = tweets
-		params['user'] = user
-		params['form'] = TweetForm()
-		return render(request, 'profile.html', params)
+		params['profile'] = user
+		params['form'] = form
+		return render(request, 'user_profile.html', params)
+
+class Profile(LoginRequiredMixin, View):
+	# login_url = '/login/'
+    # redirect_field_name = 'redirect_to'
+	def get(self, request, username):
+		params = dict()
+		user = User.objects.get(username = username)
+		# import ipdb; ipdb.set_trace()
+		if user.id == request.user.id:
+			return HttpResponseRedirect('/users/profile')
+		try:
+			user_follower = UserFollowers.objects.get(user = user)
+		except:
+			user_follower = None
+		if user_follower and user_follower.followers.filter(username = request.user.username).exists():
+			params['following'] = True
+		else:
+			params['following'] = False
+		form = TweetForm(initial = {'country': 'Vietname'})
+		search_form = SearchForm()
+		tweets = Tweet.objects.filter(user = user).order_by('-created_date')
+		params['tweets'] = tweets
+		params['profile'] = user
+		params['search'] = search_form
+		params['form'] = form
+		return render(request, 'other_profile.html', params)
+
+	def post(self, request, username):
+		follow = request.POST['follow']
+		user = User.objects.get(username = request.user.username)
+		user_profile = User.objects.get(username = username)
+		user_follower, status = UserFollowers.objects.get_or_create(user = user_profile)
+		if follow == 'true':
+			user_follower.followers.add(user)
+		else:
+			user_follower.followers.remove(user)
+		return HttpResponse(json.dumps(""), content_type = "application/json")
 
 class PostTweet(View):
 	def post(self, request, username):
@@ -45,7 +83,6 @@ class PostTweet(View):
 		return redirect(Profile.as_view())
 
 class HashTagCloud(View):
-
 	def get(self, request, hashTag):
 		params = dict()
 		hashtag = HashTag.objects.get(name = hashTag)
@@ -53,7 +90,6 @@ class HashTagCloud(View):
 		return render(request, 'hashtag.html', params)
 
 class Search(View):
-
 	def post(self, request):
 		form = SearchForm(request.POST)
 		import ipdb; ipdb.set_trace()
@@ -71,3 +107,10 @@ class Search(View):
 		params = dict()
 		params["search"] = form
 		return render(request,'search.html',RequestContext(request, params))
+
+class MostFollowedUser(View):
+	def get(self, request):
+		user_followers = UserFollowers.objects.order_by("-count")
+		params = dict()
+		params['user_followers'] = user_followers
+		return render(request, 'users.html', params)

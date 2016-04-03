@@ -8,7 +8,7 @@ class Tweet(models.Model):
 
 	user = models.ForeignKey(User)
 	text = models.CharField(max_length = 160)
-	created_data = models.DateTimeField(auto_now_add=True)
+	created_date = models.DateTimeField(auto_now_add=True)
 	country = models.CharField(max_length = 30)
 	is_active = models.BooleanField(default = True)
 

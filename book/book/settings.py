@@ -136,4 +136,7 @@ STATICFILES_DIRS = [
     '/var/www/static/',
 ]
 
-# CLEAR_CACHE_ON_RESTART = True
+CLEAR_CACHE_ON_RESTART = True
+
+LOGIN_REDIRECT_URL = '/users/profile'
+LOGIN_URL = 'django.contrib.auth.views.login'

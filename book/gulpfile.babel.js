@@ -13,14 +13,24 @@ import sourcemaps from 'gulp-sourcemaps';
 import plumber  from 'gulp-plumber';
 import tap from 'gulp-tap';
 import _ from 'lodash';
-
+const args = process.argv.slice(2);
+var entries = []
+var event = ['app','search','profile'];
 var paths = {
   _source:'./source',
   build:'./static',
   buildStyle:'./static/stylesheets/',
   buildScript:'./static/javascripts/',
 };
-var entries = [`${paths._source}/app.js`,`${paths._source}/search.js`];
+
+if (args.length > 0){
+  args.forEach( e => entries.push(`${paths._source}/${e}.js`));
+}
+else{
+  event.forEach( e => entries.push(`${paths._source}/${e}.js`));
+}
+
+
 var customOpts = {
   entries: entries,
   debug: true,
@@ -31,6 +41,7 @@ var customOpts = {
 var opts = _.assign({}, watchify.args, customOpts);
 
 function bundle(file_source,func){
+
   var b = //watchify(
     browserify(opts);
   //);
@@ -52,15 +63,20 @@ function bundleWithSearch(){
   return bundle(`search.js`,bundleWithSearch);
 }
 
-var event = ['app','search'];
+function bundleWithProfile(){
+  return bundle(`profile.js`,bundleWithApp);
+}
+
 var func_event = {
   'app':bundleWithApp,
-  'search': bundleWithSearch
+  'search': bundleWithSearch,
+  'profile': bundleWithProfile
 }
 
 gulp.task('default',event);
 
 event.map( item => {
+
   gulp.task(item,function(){
     return func_event[item]();
   });

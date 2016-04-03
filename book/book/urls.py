@@ -20,7 +20,9 @@ import settings
 admin.autodiscover()
 
 urlpatterns = [
-	url(r'^tweets/', include("tweets.urls"))
+	url(r'^tweets/', include("tweets.urls")),
+    url(r'^users/', include("user_profiles.urls")),
+
 ]
 
 if settings.DEBUG:
