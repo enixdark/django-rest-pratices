@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<div class="row clearfix">
+		<div class="col-md-12 column">
+			<form method="post" action="post/">
+				{% csrf_token %}
+				<div class="row">
+					<div class="col-md-8 col-md-offset-2 fieldWrapper">
+						{{ form.text.errors }}
+						{{ form.text }}
+						{{ form.country.as_hidden }}
+					</div>
+					<div class="col-md-2 fieldWrapper">
+						<button class="btn btn-success" type="submit" value="post">Click</button>
+					</div>
+				</div>
+			</form>
+		</div>
+		<h3>&nbsp;</h3>
+		<div class="col-md-12 column">
+			{% for tweet in tweets %}
+				<div class="well">
+					<span>{{ tweet.text }}</span>
+				</div>
+			{% endfor %}
+		</div>
+	</div>
+{% endblock %}
