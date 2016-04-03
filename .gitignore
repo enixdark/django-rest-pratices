@@ -54,3 +54,15 @@ docs/_build/
 target/
 
 *.pyc
+
+# node module
+node_modules
+
+# source folder
+source
+
+# sql database
+*.sqlite3
+
+# virtualenv
+venv
